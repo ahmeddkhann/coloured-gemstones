@@ -45,7 +45,7 @@ These are settled so implementation does not stall on product questions.
 | Topic | Decision |
 | --- | --- |
 | Customer accounts | **None in v1.** Anyone can browse and order. |
-| Admin accounts | **One admin.** Credentials live in env (`ADMIN_EMAIL`, `ADMIN_PASSWORD`). Session is an HTTP-only signed cookie. |
+| Admin accounts | **Admins live in Mongo.** `Admin` collection: name, unique email, `passwordHash` (never a plain password). Login later checks this collection. Session is an HTTP-only signed cookie. |
 | Cart | **Client-side.** `localStorage` + React context. No carts collection. |
 | Checkout | Guest form: name, email, phone, address, optional notes. |
 | Payment | **Cash on delivery / bank transfer request only.** No Stripe/PayPal in v1. |
@@ -125,20 +125,21 @@ NEXT_PUBLIC_CURRENCY_SYMBOL=Rs
 NEXT_PUBLIC_WHATSAPP_NUMBER=92XXXXXXXXXX
 
 # Mongo
-MONGODB_URI=mongodb://127.0.0.1:27017/coloured-gemstones
+MONGODB_STRING=
 
 # Admin
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=change-me
 ADMIN_SESSION_SECRET=long-random-string-at-least-32-chars
 
-# Nodemailer (Gmail app password or any SMTP)
+# Nodemailer (Gmail app password, port 465 implicit TLS)
 SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
+SMTP_PORT=465
+SMTP_SECURE=true
 SMTP_USER=
 SMTP_PASS=
-SMTP_FROM="Coloured Gemstones <no-reply@example.com>"
-ADMIN_NOTIFY_EMAIL=admin@example.com
+SMTP_FROM="Coloured Gemstones<iamahmedkhan02@gmail.com>"
+ADMIN_NOTIFY_EMAIL=
 
 # DeepSeek
 DEEPSEEK_API_KEY=
@@ -216,9 +217,19 @@ Indexes: unique `slug`. Text index on `name`, `type`, `color`, `origin` for late
 
 When an order is created: decrement `stock` for each item. If a later cancellation happens and stock should return, add it back only from `cancelled` (and only once — track with a `stockRestored` flag).
 
-### No other collections in v1
+### `Admin`
 
-Admin is env-based. Cart is local. Recommendations are computed, not stored (optional later cache collection if DeepSeek cost becomes an issue).
+```ts
+{
+  name: string
+  email: string           // unique, lowercase
+  passwordHash: string    // bcrypt (or similar) at login time; never store plain text
+  role: "admin"
+  createdAt, updatedAt
+}
+```
+
+`passwordHash` is `select: false` so list queries do not return it. Cart stays local. Recommendations are computed, not stored.
 
 ---
 
@@ -349,7 +360,7 @@ If mail fails, still keep the order. Log the mail error. Do not roll back the or
 
 ### 10.4 Admin auth
 
-- `login` action compares env email/password (constant-time email check + hashed or direct compare of env password is acceptable for the single-admin v1; prefer hashing the env password at rest in a comment that we compare with a simple equality only because the secret is not in the database — still use `jose` for the session).
+- `login` action looks up `Admin` by email, compares the submitted password to `passwordHash`, then sets a signed session cookie. Do not store or compare a plain-text password.
 - Session cookie: `cg_admin`, HTTP-only, `secure` in production, `sameSite=lax`, 7-day expiry, signed JWT `{ role: "admin" }`.
 - `getAdminSession()` used by every admin action and admin layout.
 - `proxy.ts` matcher: `/admin/:path*`. If path is not `/admin/login` and cookie is missing/invalid, redirect to `/admin/login`.
@@ -507,6 +518,7 @@ Implement in these phases. Finish and sanity-check a phase before starting the n
 | --- | --- |
 | 2026-10-24 | v1 is guest checkout + single env-based admin. Cart is localStorage. Payments are COD only. Recommendations use DeepSeek with a Mongo fallback. |
 | 2026-10-24 | Images: Cloudinary, not local disk and not Mongo binaries. Mongo stores `{ url, publicId }` only. WebP/AVIF comes from Cloudinary `f_auto,q_auto` on delivery. |
+| 2026-10-24 | Admin is a Mongo collection (`name`, unique `email`, `passwordHash`, `role`), not env-only credentials. |
 
 ---
 
