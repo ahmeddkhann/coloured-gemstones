@@ -80,11 +80,53 @@ export async function sendMail({ to, subject, html }: SendMailInput) {
       subject,
       html,
     });
-    return;
+    return { sent: false as const };
   }
 
   const transporter = getTransporter();
   await transporter.sendMail({ from, to, subject, html });
+  return { sent: true as const };
+}
+
+export async function sendAdminInviteEmail(input: {
+  name: string;
+  email: string;
+  password: string;
+}) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  return sendMail({
+    to: input.email,
+    subject: "You have been added as a Coloured Gemstones admin",
+    html: `
+      <p>Hello ${input.name},</p>
+      <p>An admin account was created for you. Sign in with these details:</p>
+      <p>Email: <strong>${input.email}</strong><br />
+      Password: <strong>${input.password}</strong></p>
+      <p>Then enter the one-time code we email you.</p>
+      <p><a href="${appUrl}/admin/login">Sign in to the atelier desk</a></p>
+    `,
+  });
+}
+
+export async function sendOtpEmail(
+  to: string,
+  code: string,
+  reason: "signin" | "signup" | "reset",
+) {
+  const copy = {
+    signin: { action: "sign in", subject: "sign-in" },
+    signup: { action: "create your admin account", subject: "sign-up" },
+    reset: { action: "reset your password", subject: "password reset" },
+  }[reason];
+
+  return sendMail({
+    to,
+    subject: `Your Coloured Gemstones ${copy.subject} code`,
+    html: `
+      <p>Your one-time code to ${copy.action} is <strong>${code}</strong>.</p>
+      <p>It expires in 10 minutes. If you did not request this, ignore the email.</p>
+    `,
+  });
 }
 
 export async function sendOrderReceivedToCustomer(order: OrderMailPayload) {

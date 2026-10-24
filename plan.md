@@ -259,10 +259,25 @@ When an order is created: decrement `stock` for each item. If a later cancellati
 
 ### API
 
-| Path | Purpose |
-| --- | --- |
-| `POST /api/upload` | Admin-only. Streams the file to Cloudinary. Returns `{ url, publicId }`. |
-| `POST /api/recommendations` | Body: `{ slug }`. Returns recommended gemstone IDs + reason. |
+| Method | Path | Auth | Purpose |
+| --- | --- | --- | --- |
+| `POST` | `/api/auth/login` | Public | Email + password, then email a login OTP. |
+| `POST` | `/api/auth/otp/verify` | Public | Verify OTP and set the JWT cookie. |
+| `POST` | `/api/auth/otp/resend` | Public | Resend OTP (cooldown). |
+| `POST` | `/api/auth/logout` | Cookie | Clear the JWT cookie. |
+| `GET` | `/api/auth/me` | Admin JWT | Current admin profile. |
+| `GET` | `/api/gemstones` | Public | List stones (`featured`, `type`, `q`, `inStock`). |
+| `POST` | `/api/gemstones` | Admin JWT | Create a stone. |
+| `GET` | `/api/gemstones/[id]` | Public | One stone by id. |
+| `PATCH` | `/api/gemstones/[id]` | Admin JWT | Update a stone. |
+| `DELETE` | `/api/gemstones/[id]` | Admin JWT | Delete a stone and Cloudinary assets. |
+| `GET` | `/api/gemstones/slug/[slug]` | Public | One stone by slug. |
+| `GET` | `/api/orders` | Admin JWT | List orders (`status`). |
+| `POST` | `/api/orders` | Public | Guest checkout. |
+| `GET` | `/api/orders/[id]` | Admin JWT | Order detail. |
+| `PATCH` | `/api/orders/[id]` | Admin JWT | Change status; restore stock on cancel. |
+| `POST` | `/api/recommendations` | Public | Body `{ slug }`. DeepSeek or fallback. |
+| `POST` | `/api/upload` | Admin JWT | Cloudinary image upload. Returns `{ url, publicId }`. |
 
 404 via `app/not-found.tsx`. Admin and store get their own `loading.tsx` skeletons.
 
