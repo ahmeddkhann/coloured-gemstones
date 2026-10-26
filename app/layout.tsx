@@ -3,6 +3,7 @@ import { Geist, Playfair_Display } from "next/font/google";
 
 import { Header } from "@/app/_components/Header";
 import { StoreProviders } from "@/app/_components/StoreProviders";
+import { WhatsAppButton } from "@/app/_components/WhatsAppButton";
 
 import "./globals.css";
 
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <StoreProviders>
           <Header />
           <div className="flex flex-1 flex-col">{children}</div>
+          <WhatsAppButton />
         </StoreProviders>
       </body>
     </html>
