@@ -63,6 +63,16 @@ export async function PATCH(
       gemstone.slug = await uniqueGemstoneSlug(updates.name, id);
     }
 
+    if (updates.images) {
+      const nextIds = new Set(updates.images.map((image) => image.publicId));
+      const removed = gemstone.images
+        .map((image: { publicId: string }) => image.publicId)
+        .filter((publicId: string) => !nextIds.has(publicId));
+      if (removed.length > 0) {
+        await destroyImages(removed);
+      }
+    }
+
     Object.assign(gemstone, updates);
     await gemstone.save();
     return jsonOk(serializeDoc(gemstone));

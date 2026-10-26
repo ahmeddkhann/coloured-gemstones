@@ -46,11 +46,20 @@ export const createGemstoneSchema = z.object({
   carat: z.number().nonnegative(),
   price: z.number().nonnegative(),
   stock: z.number().int().nonnegative(),
-  images: z.array(gemstoneImageSchema).default([]),
+  images: z
+    .array(gemstoneImageSchema)
+    .min(1, "Add at least one image.")
+    .max(5, "A gemstone can have at most 5 images."),
   featured: z.boolean().default(false),
 });
 
-export const updateGemstoneSchema = createGemstoneSchema.partial();
+export const updateGemstoneSchema = createGemstoneSchema.partial().extend({
+  images: z
+    .array(gemstoneImageSchema)
+    .min(1, "Add at least one image.")
+    .max(5, "A gemstone can have at most 5 images.")
+    .optional(),
+});
 
 export const checkoutSchema = z.object({
   customer: z.object({

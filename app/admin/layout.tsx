@@ -1,5 +1,7 @@
 import { Suspense } from "react";
 
+import { AdminShell } from "@/app/admin/_components/AdminShell";
+
 export default function AdminLayout({
   children,
 }: {
@@ -13,7 +15,7 @@ export default function AdminLayout({
         </main>
       }
     >
-      {children}
+      <AdminShell>{children}</AdminShell>
     </Suspense>
   );
 }

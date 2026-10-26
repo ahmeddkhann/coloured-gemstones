@@ -34,60 +34,31 @@ async function Dashboard() {
       <p className="mt-2 text-ink-soft">{admin.email}</p>
 
       <div className="mt-10 grid gap-5 sm:grid-cols-3">
-        {[
-          ["Gemstones", gemstones],
-          ["Orders", orders],
-          ["Pending", pending],
-        ].map(([label, value]) => (
-          <article
-            key={String(label)}
-            className="rounded-2xl border border-gold/25 bg-card px-6 py-8"
-          >
-            <p className="text-xs uppercase tracking-[0.2em] text-gold">
-              {label}
-            </p>
-            <p className="mt-3 font-serif text-4xl text-jewel">{value}</p>
-          </article>
-        ))}
-      </div>
-
-      <div className="mt-10 flex flex-wrap gap-3">
         <a
-          href="/admin/admins/new"
-          className="rounded-full bg-jewel px-5 py-2 text-sm text-[#f7f1e8]"
+          href="/admin/gemstones"
+          className="rounded-2xl border border-gold/25 bg-card px-6 py-8 transition hover:border-gold/50"
         >
-          Add admin
+          <p className="text-xs uppercase tracking-[0.2em] text-gold">
+            Gemstones
+          </p>
+          <p className="mt-3 font-serif text-4xl text-jewel">{gemstones}</p>
         </a>
         <a
-          href="/admin/settings"
-          className="rounded-full border border-gold/40 px-5 py-2 text-sm text-jewel hover:bg-gold/10"
+          href="/admin/orders"
+          className="rounded-2xl border border-gold/25 bg-card px-6 py-8 transition hover:border-gold/50"
         >
-          Update details
+          <p className="text-xs uppercase tracking-[0.2em] text-gold">Orders</p>
+          <p className="mt-3 font-serif text-4xl text-jewel">{orders}</p>
         </a>
-        <LogoutButton />
+        <a
+          href="/admin/orders?status=pending"
+          className="rounded-2xl border border-gold/25 bg-card px-6 py-8 transition hover:border-gold/50"
+        >
+          <p className="text-xs uppercase tracking-[0.2em] text-gold">Pending</p>
+          <p className="mt-3 font-serif text-4xl text-jewel">{pending}</p>
+        </a>
       </div>
     </main>
-  );
-}
-
-function LogoutButton() {
-  return (
-    <form
-      action={async () => {
-        "use server";
-        const { clearAdminCookie } = await import("@/lib/auth");
-        const { redirect: go } = await import("next/navigation");
-        await clearAdminCookie();
-        go("/admin/login");
-      }}
-    >
-      <button
-        type="submit"
-        className="rounded-full border border-gold/40 px-5 py-2 text-sm text-jewel hover:bg-gold/10"
-      >
-        Sign out
-      </button>
-    </form>
   );
 }
 
