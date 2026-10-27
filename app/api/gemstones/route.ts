@@ -57,12 +57,12 @@ export async function GET(request: Request) {
         filter.$text = { $search: q };
       }
       const skip = (page - 1) * limit;
-      const sortSpec =
+      const sortSpec: Record<string, 1 | -1> =
         sort === "price-asc"
-          ? { price: 1 as const }
+          ? { price: 1 }
           : sort === "price-desc"
-            ? { price: -1 as const }
-            : { featured: -1 as const, createdAt: -1 as const };
+            ? { price: -1 }
+            : { featured: -1, createdAt: -1 };
       const [gemstones, total] = await Promise.all([
         GemstoneModel.find(filter).sort(sortSpec).skip(skip).limit(limit),
         GemstoneModel.countDocuments(filter),
