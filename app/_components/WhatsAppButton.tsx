@@ -1,8 +1,13 @@
-import { WhatsAppFloat } from "@/app/_components/WhatsAppFloat";
-import { getWhatsAppNumber, whatsAppHref } from "@/lib/whatsapp";
+"use client";
 
-export function WhatsAppButton() {
-  const number = getWhatsAppNumber();
+import { WhatsAppFloat } from "@/app/_components/WhatsAppFloat";
+import { whatsAppHref } from "@/lib/whatsapp";
+
+type Props = {
+  number: string;
+};
+
+export function WhatsAppButton({ number }: Props) {
   if (!number) {
     return null;
   }

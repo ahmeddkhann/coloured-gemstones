@@ -1,4 +1,4 @@
-/** Digits-only international form for wa.me (e.g. 923409063364). */
+/** Digits-only international form for wa.me (e.g. 66942728437). */
 export function normalizeWhatsAppNumber(raw: string) {
   let digits = raw.replace(/\D/g, "");
   if (!digits) {

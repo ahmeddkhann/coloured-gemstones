@@ -1,15 +1,47 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type Props = {
   href: string;
 };
 
 export function WhatsAppFloat({ href }: Props) {
-  const pathname = usePathname();
+  const [visible, setVisible] = useState(false);
 
-  if (!href || pathname.startsWith("/admin")) {
+  useEffect(() => {
+    if (!href) {
+      return;
+    }
+
+    const sync = () => {
+      setVisible(!window.location.pathname.startsWith("/admin"));
+    };
+
+    sync();
+
+    window.addEventListener("popstate", sync);
+
+    const pushState = history.pushState.bind(history);
+    const replaceState = history.replaceState.bind(history);
+
+    history.pushState = (...args: Parameters<History["pushState"]>) => {
+      pushState(...args);
+      sync();
+    };
+    history.replaceState = (...args: Parameters<History["replaceState"]>) => {
+      replaceState(...args);
+      sync();
+    };
+
+    return () => {
+      window.removeEventListener("popstate", sync);
+      history.pushState = pushState;
+      history.replaceState = replaceState;
+    };
+  }, [href]);
+
+  if (!href || !visible) {
     return null;
   }
 
