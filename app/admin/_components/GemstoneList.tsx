@@ -51,41 +51,44 @@ export function GemstoneList({ gemstones: initial }: Props) {
 
   if (gemstones.length === 0) {
     return (
-      <div className="mt-8 rounded-2xl border border-dashed border-gold/30 px-6 py-12 text-center">
-        <p className="text-ink-soft">No gemstones yet.</p>
+      <div className="admin-card mt-8 border-dashed px-6 py-12 text-center">
+        <p className="text-[var(--admin-muted)]">No listings yet.</p>
         <Link
           href="/admin/gemstones/new"
-          className="mt-4 inline-block rounded-full bg-jewel px-5 py-2 text-sm text-[#f7f1e8]"
+          className="mt-4 inline-block rounded-full bg-jewel px-5 py-2 text-sm font-medium text-[#f7f1e8]"
         >
-          Add gemstone
+          New listing
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="mt-8">
+    <div className="mt-6">
       {error ? <p className="mb-4 text-sm text-red-700">{error}</p> : null}
-      <div className="overflow-x-auto rounded-2xl border border-gold/25 bg-card">
+      <div className="admin-card overflow-x-auto">
         <table className="w-full min-w-[640px] text-left text-sm">
-          <thead className="border-b border-gold/20 text-xs uppercase tracking-[0.16em] text-gold">
+          <thead className="border-b border-[var(--admin-border)] text-xs font-medium uppercase tracking-wide text-[var(--admin-muted)]">
             <tr>
-              <th className="px-4 py-3 font-medium">Stone</th>
-              <th className="px-4 py-3 font-medium">Type</th>
-              <th className="px-4 py-3 font-medium">Price</th>
-              <th className="px-4 py-3 font-medium">Stock</th>
-              <th className="px-4 py-3 font-medium">Featured</th>
-              <th className="px-4 py-3 font-medium">Actions</th>
+              <th className="px-4 py-3">Listing</th>
+              <th className="px-4 py-3">Type</th>
+              <th className="px-4 py-3">Price</th>
+              <th className="px-4 py-3">Stock</th>
+              <th className="px-4 py-3">Featured</th>
+              <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
             {gemstones.map((stone) => {
               const cover = stone.images[0];
               return (
-                <tr key={stone.id} className="border-b border-gold/10 last:border-0">
+                <tr
+                  key={stone.id}
+                  className="border-b border-[var(--admin-border)] last:border-0"
+                >
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-background">
+                      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-[#f5f3ef]">
                         {cover ? (
                           <Image
                             src={cover.url}
@@ -98,13 +101,15 @@ export function GemstoneList({ gemstones: initial }: Props) {
                       </div>
                       <Link
                         href={`/admin/gemstones/${stone.id}`}
-                        className="font-medium text-jewel hover:underline"
+                        className="font-medium text-[var(--admin-ink)] hover:text-jewel"
                       >
                         {stone.name}
                       </Link>
                     </div>
                   </td>
-                  <td className="px-4 py-3 capitalize text-ink-soft">{stone.type}</td>
+                  <td className="px-4 py-3 capitalize text-[var(--admin-muted)]">
+                    {stone.type}
+                  </td>
                   <td className="px-4 py-3">{stone.price.toLocaleString()}</td>
                   <td className="px-4 py-3">{stone.stock}</td>
                   <td className="px-4 py-3">{stone.featured ? "Yes" : "—"}</td>
@@ -112,13 +117,13 @@ export function GemstoneList({ gemstones: initial }: Props) {
                     <div className="flex flex-wrap gap-2">
                       <Link
                         href={`/admin/gemstones/${stone.id}`}
-                        className="rounded-full border border-gold/40 px-3 py-1 text-xs text-jewel hover:bg-gold/10"
+                        className="rounded-full border border-[var(--admin-border)] px-3 py-1 text-xs hover:bg-[#f7f5f1]"
                       >
                         View
                       </Link>
                       <Link
                         href={`/admin/gemstones/${stone.id}/edit`}
-                        className="rounded-full border border-gold/40 px-3 py-1 text-xs text-jewel hover:bg-gold/10"
+                        className="rounded-full border border-[var(--admin-border)] px-3 py-1 text-xs hover:bg-[#f7f5f1]"
                       >
                         Edit
                       </Link>
@@ -126,7 +131,7 @@ export function GemstoneList({ gemstones: initial }: Props) {
                         type="button"
                         disabled={pendingId === stone.id}
                         onClick={() => void remove(stone.id, stone.name)}
-                        className="rounded-full border border-red-700/40 px-3 py-1 text-xs text-red-700 disabled:opacity-50"
+                        className="rounded-full border border-red-700/30 px-3 py-1 text-xs text-red-700 disabled:opacity-50"
                       >
                         {pendingId === stone.id ? "Deleting…" : "Delete"}
                       </button>

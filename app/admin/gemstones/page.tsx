@@ -41,23 +41,23 @@ async function GemstonesPage({
   const gemstones = items as GemstoneListItem[];
 
   return (
-    <main className="w-full flex-1 px-5 py-10 lg:px-10">
+    <main className="w-full flex-1 bg-white px-5 py-8 text-black lg:px-10">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.28em] text-gold">
-            Inventory
-          </p>
-          <h1 className="mt-3 font-serif text-4xl text-jewel">Gemstones</h1>
-          <p className="mt-2 text-sm text-ink-soft">
-            {total} stone{total === 1 ? "" : "s"}
+          <p className="text-sm text-[var(--admin-muted)]">Inventory</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-black">
+            Gemstones
+          </h1>
+          <p className="mt-1 text-sm text-[var(--admin-muted)]">
+            {total} listing{total === 1 ? "" : "s"}
             {type || color || sort !== "featured" ? " matching filters" : ""}.
           </p>
         </div>
         <Link
           href="/admin/gemstones/new"
-          className="rounded-full bg-jewel px-5 py-2 text-sm text-[#f7f1e8]"
+          className="rounded-lg bg-jewel px-5 py-2.5 text-sm font-medium text-white"
         >
-          Add gemstone
+          New listing
         </Link>
       </div>
 

@@ -44,37 +44,39 @@ async function EditGemstone({ id }: { id: string }) {
   };
 
   return (
-    <main className="w-full flex-1 px-5 py-10 lg:px-10">
-      <Link
-        href="/admin/gemstones"
-        className="text-sm text-ink-soft hover:text-jewel"
-      >
-        ← Back to gemstones
-      </Link>
-      <p className="mt-6 text-xs uppercase tracking-[0.28em] text-gold">
-        Inventory
+    <main className="w-full flex-1 bg-white px-5 py-8 text-black lg:px-10">
+      <p className="text-sm text-[var(--admin-muted)]">
+        <Link href="/admin/gemstones" className="hover:text-black">
+          Gemstones
+        </Link>
+        <span className="mx-2">›</span>
+        <span className="text-black">Edit listing</span>
       </p>
-      <h1 className="mt-3 font-serif text-4xl text-jewel">Edit gemstone</h1>
-      <p className="mt-2 text-sm text-ink-soft">{stone.name}</p>
-      <GemstoneForm
-        mode="edit"
-        gemstoneId={stone.id}
-        initial={{
-          name: stone.name,
-          description: stone.description,
-          type: stone.type,
-          color: stone.color,
-          cut: stone.cut,
-          clarity: stone.clarity,
-          origin: stone.origin,
-          carat: stone.carat,
-          price: stone.price,
-          stock: stone.stock,
-          featured: stone.featured,
-          images: stone.images,
-          videos: stone.videos ?? [],
-        }}
-      />
+      <h1 className="mt-3 text-3xl font-semibold tracking-tight text-black">
+        Edit listing
+      </h1>
+      <p className="mt-1 text-sm text-[var(--admin-muted)]">{stone.name}</p>
+      <div className="mt-2 max-w-4xl">
+        <GemstoneForm
+          mode="edit"
+          gemstoneId={stone.id}
+          initial={{
+            name: stone.name,
+            description: stone.description,
+            type: stone.type,
+            color: stone.color,
+            cut: stone.cut,
+            clarity: stone.clarity,
+            origin: stone.origin,
+            carat: stone.carat,
+            price: stone.price,
+            stock: stone.stock,
+            featured: stone.featured,
+            images: stone.images,
+            videos: stone.videos ?? [],
+          }}
+        />
+      </div>
     </main>
   );
 }

@@ -47,10 +47,12 @@ async function OrdersPage({
   const orders = docs.map((doc) => serializeDoc(doc) as OrderRow);
 
   return (
-    <main className="w-full flex-1 px-5 py-10 lg:px-10">
-      <p className="text-xs uppercase tracking-[0.28em] text-gold">Desk</p>
-      <h1 className="mt-3 font-serif text-4xl text-jewel">Orders</h1>
-      <p className="mt-2 text-sm text-ink-soft">
+    <main className="w-full flex-1 px-5 py-8 lg:px-10">
+      <p className="text-sm text-[var(--admin-muted)]">Sales</p>
+      <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[var(--admin-ink)]">
+        Orders
+      </h1>
+      <p className="mt-1 text-sm text-[var(--admin-muted)]">
         {orders.length} order{orders.length === 1 ? "" : "s"}
         {statusFilter ? ` · ${statusFilter}` : ""}.
       </p>

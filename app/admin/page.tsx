@@ -26,36 +26,40 @@ async function Dashboard() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 px-5 py-12">
-      <p className="text-xs uppercase tracking-[0.28em] text-gold">Dashboard</p>
-      <h1 className="mt-3 font-serif text-4xl text-jewel">
+    <main className="w-full flex-1 bg-white px-5 py-8 text-black lg:px-10">
+      <p className="text-sm text-[var(--admin-muted)]">Dashboard</p>
+      <h1 className="mt-2 text-3xl font-semibold tracking-tight text-black">
         Welcome, {admin.name}
       </h1>
-      <p className="mt-2 text-ink-soft">{admin.email}</p>
+      <p className="mt-1 text-sm text-[var(--admin-muted)]">{admin.email}</p>
 
-      <div className="mt-10 grid gap-5 sm:grid-cols-3">
+      <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <a
           href="/admin/gemstones"
-          className="rounded-2xl border border-gold/25 bg-card px-6 py-8 transition hover:border-gold/50"
+          className="admin-card px-6 py-7 transition hover:border-jewel/40"
         >
-          <p className="text-xs uppercase tracking-[0.2em] text-gold">
+          <p className="text-xs font-medium uppercase tracking-wide text-[var(--admin-muted)]">
             Gemstones
           </p>
-          <p className="mt-3 font-serif text-4xl text-jewel">{gemstones}</p>
+          <p className="mt-3 text-4xl font-semibold text-jewel">{gemstones}</p>
         </a>
         <a
           href="/admin/orders"
-          className="rounded-2xl border border-gold/25 bg-card px-6 py-8 transition hover:border-gold/50"
+          className="admin-card px-6 py-7 transition hover:border-jewel/40"
         >
-          <p className="text-xs uppercase tracking-[0.2em] text-gold">Orders</p>
-          <p className="mt-3 font-serif text-4xl text-jewel">{orders}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-[var(--admin-muted)]">
+            Orders
+          </p>
+          <p className="mt-3 text-4xl font-semibold text-jewel">{orders}</p>
         </a>
         <a
           href="/admin/orders?status=pending"
-          className="rounded-2xl border border-gold/25 bg-card px-6 py-8 transition hover:border-gold/50"
+          className="admin-card px-6 py-7 transition hover:border-jewel/40"
         >
-          <p className="text-xs uppercase tracking-[0.2em] text-gold">Pending</p>
-          <p className="mt-3 font-serif text-4xl text-jewel">{pending}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-[var(--admin-muted)]">
+            Pending
+          </p>
+          <p className="mt-3 text-4xl font-semibold text-jewel">{pending}</p>
         </a>
       </div>
     </main>

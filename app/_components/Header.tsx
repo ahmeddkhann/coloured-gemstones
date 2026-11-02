@@ -1,14 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { AccountMenu } from "@/app/_components/AccountMenu";
 import { useCart } from "@/app/_components/cart/CartProvider";
 import { useWishlist } from "@/app/_components/wishlist/WishlistProvider";
 
 export function Header() {
+  const pathname = usePathname();
   const { itemCount } = useCart();
   const { count: wishlistCount } = useWishlist();
+
+  if (pathname.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-gold/25 bg-[#f7f1e8]/90 backdrop-blur">
