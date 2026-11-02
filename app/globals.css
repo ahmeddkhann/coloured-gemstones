@@ -33,6 +33,12 @@ h3,
   font-family: var(--font-playfair), "Times New Roman", serif;
 }
 
+/* Hide storefront chrome on admin routes (avoids usePathname in root Header) */
+body:has(.admin-route) .storefront-header,
+body:has(.admin-route) .whatsapp-float {
+  display: none;
+}
+
 /* Admin panel: white canvas, black text, clearly boxed fields */
 .admin-app {
   --admin-canvas: #ffffff;

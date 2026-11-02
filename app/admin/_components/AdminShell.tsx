@@ -1,29 +1,17 @@
-"use client";
-
-import { usePathname } from "next/navigation";
+import { Suspense } from "react";
 
 import { AdminSidebar } from "@/app/admin/_components/AdminSidebar";
 
-const AUTH_PREFIXES = [
-  "/admin/login",
-  "/admin/signup",
-  "/admin/verify-otp",
-  "/admin/forgot-password",
-];
-
 export function AdminShell({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const isAuthPage = AUTH_PREFIXES.some(
-    (path) => pathname === path || pathname.startsWith(`${path}/`),
-  );
-
-  if (isAuthPage) {
-    return <>{children}</>;
-  }
-
   return (
     <div className="admin-app flex min-h-0 flex-1 flex-col bg-white text-black md:flex-row">
-      <AdminSidebar />
+      <Suspense
+        fallback={
+          <aside className="w-full shrink-0 border-b border-[var(--admin-border)] bg-white md:h-14 md:w-56 md:border-b-0 md:border-r lg:w-60" />
+        }
+      >
+        <AdminSidebar />
+      </Suspense>
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto bg-white text-black">
         {children}
       </div>
