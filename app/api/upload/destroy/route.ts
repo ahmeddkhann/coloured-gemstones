@@ -1,11 +1,16 @@
 import { z } from "zod";
 
 import { handleRouteError, jsonError, jsonOk, readJson, zodError } from "@/lib/api";
-import { destroyImages, isCloudinaryConfigured } from "@/lib/cloudinary";
+import {
+  destroyImages,
+  destroyVideos,
+  isCloudinaryConfigured,
+} from "@/lib/cloudinary";
 import { requireAdmin } from "@/lib/require-admin";
 
 const destroySchema = z.object({
   publicId: z.string().min(1, "publicId is required."),
+  resourceType: z.enum(["image", "video"]).default("image"),
 });
 
 export async function POST(request: Request) {
@@ -25,8 +30,14 @@ export async function POST(request: Request) {
       return zodError(parsed.error);
     }
 
-    await destroyImages([parsed.data.publicId]);
-    return jsonOk({ publicId: parsed.data.publicId });
+    const { publicId, resourceType } = parsed.data;
+    if (resourceType === "video") {
+      await destroyVideos([publicId]);
+    } else {
+      await destroyImages([publicId]);
+    }
+
+    return jsonOk({ publicId, resourceType });
   } catch (error) {
     return handleRouteError(error);
   }

@@ -7,6 +7,10 @@ import {
   GemstoneImageField,
   type GemstoneImageValue,
 } from "@/app/admin/_components/GemstoneImageField";
+import {
+  GemstoneVideoField,
+  type GemstoneVideoValue,
+} from "@/app/admin/_components/GemstoneVideoField";
 import { GEMSTONE_TYPES } from "@/lib/constants";
 
 const fieldClass =
@@ -25,6 +29,7 @@ export type GemstoneFormValues = {
   stock: number;
   featured: boolean;
   images: GemstoneImageValue[];
+  videos: GemstoneVideoValue[];
 };
 
 type Props = {
@@ -46,6 +51,7 @@ const empty: GemstoneFormValues = {
   stock: 0,
   featured: false,
   images: [],
+  videos: [],
 };
 
 export function GemstoneForm({ mode, gemstoneId, initial }: Props) {
@@ -54,6 +60,7 @@ export function GemstoneForm({ mode, gemstoneId, initial }: Props) {
     ...empty,
     ...initial,
     images: initial?.images ?? [],
+    videos: initial?.videos ?? [],
   });
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
@@ -90,6 +97,7 @@ export function GemstoneForm({ mode, gemstoneId, initial }: Props) {
         stock: Number(values.stock),
         featured: values.featured,
         images: values.images,
+        videos: values.videos,
       };
 
       const response = await fetch(
@@ -254,17 +262,33 @@ export function GemstoneForm({ mode, gemstoneId, initial }: Props) {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-gold/20 bg-card p-5 lg:sticky lg:top-20">
-          <p className="text-sm font-medium text-jewel">Images</p>
-          <p className="mt-1 text-xs text-ink-soft">
-            Up to five photos. First image is the cover.
-          </p>
-          <div className="mt-4">
-            <GemstoneImageField
-              value={values.images}
-              onChange={(images) => set("images", images)}
-              disabled={pending}
-            />
+        <div className="space-y-5 lg:sticky lg:top-20">
+          <div className="rounded-2xl border border-gold/20 bg-card p-5">
+            <p className="text-sm font-medium text-jewel">Images</p>
+            <p className="mt-1 text-xs text-ink-soft">
+              Up to five photos. First image is the cover.
+            </p>
+            <div className="mt-4">
+              <GemstoneImageField
+                value={values.images}
+                onChange={(images) => set("images", images)}
+                disabled={pending}
+              />
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-gold/20 bg-card p-5">
+            <p className="text-sm font-medium text-jewel">Videos</p>
+            <p className="mt-1 text-xs text-ink-soft">
+              Optional. Up to three clips.
+            </p>
+            <div className="mt-4">
+              <GemstoneVideoField
+                value={values.videos}
+                onChange={(videos) => set("videos", videos)}
+                disabled={pending}
+              />
+            </div>
           </div>
         </div>
       </div>

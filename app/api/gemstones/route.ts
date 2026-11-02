@@ -1,4 +1,5 @@
-import { handleRouteError, jsonOk, readJson, zodError } from "@/lib/api";
+import { handleRouteError, jsonError, jsonOk, readJson, zodError } from "@/lib/api";
+import { verifyMediaList } from "@/lib/cloudinary";
 import {
   CATALOG_PAGE_SIZE,
   getGemstonesPage,
@@ -97,9 +98,28 @@ export async function POST(request: Request) {
       return zodError(parsed.error);
     }
 
+    let images;
+    let videos;
+    try {
+      images = await verifyMediaList(parsed.data.images, "image");
+      videos = await verifyMediaList(parsed.data.videos ?? [], "video");
+    } catch (error) {
+      return jsonError(
+        error instanceof Error
+          ? error.message
+          : "Could not verify media with Cloudinary.",
+        400,
+      );
+    }
+
     await connectDB();
     const slug = await uniqueGemstoneSlug(parsed.data.name);
-    const gemstone = await GemstoneModel.create({ ...parsed.data, slug });
+    const gemstone = await GemstoneModel.create({
+      ...parsed.data,
+      images,
+      videos: videos ?? [],
+      slug,
+    });
     return jsonOk(serializeDoc(gemstone), 201);
   } catch (error) {
     return handleRouteError(error);

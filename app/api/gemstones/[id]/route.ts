@@ -1,7 +1,11 @@
 import { isValidObjectId } from "mongoose";
 
 import { handleRouteError, jsonError, jsonOk, readJson, zodError } from "@/lib/api";
-import { destroyImages } from "@/lib/cloudinary";
+import {
+  destroyImages,
+  destroyVideos,
+  verifyMediaList,
+} from "@/lib/cloudinary";
 import { connectDB } from "@/lib/mongodb";
 import { GemstoneModel } from "@/lib/models/Gemstone";
 import { requireAdmin } from "@/lib/require-admin";
@@ -63,6 +67,22 @@ export async function PATCH(
       gemstone.slug = await uniqueGemstoneSlug(updates.name, id);
     }
 
+    try {
+      if (updates.images) {
+        updates.images = await verifyMediaList(updates.images, "image");
+      }
+      if (updates.videos) {
+        updates.videos = await verifyMediaList(updates.videos, "video");
+      }
+    } catch (error) {
+      return jsonError(
+        error instanceof Error
+          ? error.message
+          : "Could not verify media with Cloudinary.",
+        400,
+      );
+    }
+
     if (updates.images) {
       const nextIds = new Set(updates.images.map((image) => image.publicId));
       const removed = gemstone.images
@@ -70,6 +90,17 @@ export async function PATCH(
         .filter((publicId: string) => !nextIds.has(publicId));
       if (removed.length > 0) {
         await destroyImages(removed);
+      }
+    }
+
+    if (updates.videos) {
+      const nextIds = new Set(updates.videos.map((video) => video.publicId));
+      const existingVideos = gemstone.videos ?? [];
+      const removed = existingVideos
+        .map((video: { publicId: string }) => video.publicId)
+        .filter((publicId: string) => !nextIds.has(publicId));
+      if (removed.length > 0) {
+        await destroyVideos(removed);
       }
     }
 
@@ -102,9 +133,16 @@ export async function DELETE(
       return jsonError("Gemstone not found.", 404);
     }
 
-    await destroyImages(
-      gemstone.images.map((image: { publicId: string }) => image.publicId),
-    );
+    await Promise.all([
+      destroyImages(
+        gemstone.images.map((image: { publicId: string }) => image.publicId),
+      ),
+      destroyVideos(
+        (gemstone.videos ?? []).map(
+          (video: { publicId: string }) => video.publicId,
+        ),
+      ),
+    ]);
     return jsonOk({ id });
   } catch (error) {
     return handleRouteError(error);

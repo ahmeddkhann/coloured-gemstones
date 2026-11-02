@@ -534,6 +534,8 @@ Implement in these phases. Finish and sanity-check a phase before starting the n
 | 2026-10-24 | v1 is guest checkout + single env-based admin. Cart is localStorage. Payments are COD only. Recommendations use DeepSeek with a Mongo fallback. |
 | 2026-10-24 | Images: Cloudinary, not local disk and not Mongo binaries. Mongo stores `{ url, publicId }` only. WebP/AVIF comes from Cloudinary `f_auto,q_auto` on delivery. |
 | 2026-10-24 | Admin is a Mongo collection (`name`, unique `email`, `passwordHash`, `role`), not env-only credentials. |
+| 2026-11-02 | Media uploads (images + videos) use Cloudinary **signed browser upload** so bytes never hit Vercel body limits. Mongo still stores `{ url, publicId }` only. Videos are optional (`videos[]`, max 3). Destroy stays server-side with the correct `resource_type`. |
+| 2026-11-02 | Media: browser **XHR** → Cloudinary only (Next.js signs + authenticates; no file proxy). Gemstone create/update **verifies** each `publicId` via Cloudinary Admin API before persist. |
 
 ---
 

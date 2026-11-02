@@ -24,6 +24,7 @@ const gemstoneSchema = new Schema(
     price: { type: Number, required: true, min: 0 },
     stock: { type: Number, required: true, min: 0, default: 0 },
     images: { type: [gemstoneImageSchema], default: [] },
+    videos: { type: [gemstoneImageSchema], default: [] },
     featured: { type: Boolean, default: false },
   },
   { timestamps: true },

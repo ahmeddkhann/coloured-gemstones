@@ -40,6 +40,7 @@ async function EditGemstone({ id }: { id: string }) {
     stock: number;
     featured: boolean;
     images: { url: string; publicId: string }[];
+    videos?: { url: string; publicId: string }[];
   };
 
   return (
@@ -71,6 +72,7 @@ async function EditGemstone({ id }: { id: string }) {
           stock: stone.stock,
           featured: stone.featured,
           images: stone.images,
+          videos: stone.videos ?? [],
         }}
       />
     </main>

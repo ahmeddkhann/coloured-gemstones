@@ -22,6 +22,7 @@ export type PublicGemstone = {
   stock: number;
   featured: boolean;
   images: { url: string; publicId: string }[];
+  videos: { url: string; publicId: string }[];
 };
 
 export type GemstoneSort = "featured" | "price-asc" | "price-desc";
@@ -65,6 +66,15 @@ function escapeRegex(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+function toPublicGemstone(doc: { toObject?: () => unknown }): PublicGemstone {
+  const stone = serializeDoc(doc) as PublicGemstone;
+  return {
+    ...stone,
+    images: stone.images ?? [],
+    videos: stone.videos ?? [],
+  };
+}
+
 export function parseGemstoneSort(value?: string | null): GemstoneSort {
   if (value === "price-asc" || value === "price-desc") {
     return value;
@@ -90,7 +100,7 @@ export async function getGemstonesPage(filters: GemstoneListFilters = {}) {
   ]);
 
   return {
-    items: docs.map((doc) => serializeDoc(doc) as PublicGemstone),
+    items: docs.map((doc) => toPublicGemstone(doc)),
     page: safePage,
     limit: safeLimit,
     total,
@@ -118,7 +128,7 @@ export async function getGemstoneBySlug(slug: string) {
   if (!doc) {
     return null;
   }
-  return serializeDoc(doc) as PublicGemstone;
+  return toPublicGemstone(doc);
 }
 
 export function buildCatalogQuery(params: {

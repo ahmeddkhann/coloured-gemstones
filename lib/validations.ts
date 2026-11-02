@@ -30,9 +30,9 @@ export const otpResendSchema = z.object({
   email: z.string().email("Enter a valid email."),
 });
 
-const gemstoneImageSchema = z.object({
-  url: z.string().url("Image URL is invalid."),
-  publicId: z.string().min(1, "Image publicId is required."),
+const gemstoneMediaSchema = z.object({
+  url: z.string().url("Media URL is invalid."),
+  publicId: z.string().min(1, "Media publicId is required."),
 });
 
 export const createGemstoneSchema = z.object({
@@ -47,18 +47,30 @@ export const createGemstoneSchema = z.object({
   price: z.number().nonnegative(),
   stock: z.number().int().nonnegative(),
   images: z
-    .array(gemstoneImageSchema)
+    .array(gemstoneMediaSchema)
     .min(1, "Add at least one image.")
     .max(5, "A gemstone can have at most 5 images."),
+  videos: z
+    .array(gemstoneMediaSchema)
+    .max(3, "A gemstone can have at most 3 videos.")
+    .default([]),
   featured: z.boolean().default(false),
 });
 
 export const updateGemstoneSchema = createGemstoneSchema.partial().extend({
   images: z
-    .array(gemstoneImageSchema)
+    .array(gemstoneMediaSchema)
     .min(1, "Add at least one image.")
     .max(5, "A gemstone can have at most 5 images.")
     .optional(),
+  videos: z
+    .array(gemstoneMediaSchema)
+    .max(3, "A gemstone can have at most 3 videos.")
+    .optional(),
+});
+
+export const uploadSignSchema = z.object({
+  resourceType: z.enum(["image", "video"]),
 });
 
 export const checkoutSchema = z.object({

@@ -3,10 +3,13 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 
-export type GemstoneImageValue = {
-  url: string;
-  publicId: string;
-};
+import {
+  destroyCloudinaryAsset,
+  uploadFileToCloudinary,
+  type CloudinaryMediaValue,
+} from "@/app/admin/_components/uploadToCloudinary";
+
+export type GemstoneImageValue = CloudinaryMediaValue;
 
 type Props = {
   value: GemstoneImageValue[];
@@ -15,21 +18,16 @@ type Props = {
 };
 
 const MAX_IMAGES = 5;
+const MAX_BYTES = 8 * 1024 * 1024;
+const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 export function GemstoneImageField({ value, onChange, disabled }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
 
   const remaining = MAX_IMAGES - value.length;
-
-  async function destroyRemote(publicId: string) {
-    await fetch("/api/upload/destroy", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ publicId }),
-    });
-  }
 
   async function onFilesSelected(files: FileList | null) {
     if (!files || files.length === 0 || remaining <= 0) {
@@ -38,33 +36,32 @@ export function GemstoneImageField({ value, onChange, disabled }: Props) {
 
     setError("");
     setUploading(true);
+    setProgress(0);
 
     const toUpload = Array.from(files).slice(0, remaining);
     const next = [...value];
 
     try {
       for (const file of toUpload) {
-        const form = new FormData();
-        form.append("file", file);
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: form,
-        });
-        const payload = (await response.json()) as {
-          ok: boolean;
-          error?: string;
-          data?: GemstoneImageValue;
-        };
-        if (!response.ok || !payload.ok || !payload.data) {
-          throw new Error(payload.error || "Upload failed.");
+        if (!ALLOWED.has(file.type)) {
+          throw new Error("Use a JPEG, PNG, or WebP image.");
         }
-        next.push(payload.data);
+        if (file.size > MAX_BYTES) {
+          throw new Error("Image must be 8MB or smaller.");
+        }
+        setProgress(0);
+        next.push(
+          await uploadFileToCloudinary(file, "image", {
+            onProgress: setProgress,
+          }),
+        );
+        onChange([...next]);
       }
-      onChange(next);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed.");
     } finally {
       setUploading(false);
+      setProgress(0);
       if (inputRef.current) {
         inputRef.current.value = "";
       }
@@ -78,7 +75,7 @@ export function GemstoneImageField({ value, onChange, disabled }: Props) {
     }
     setError("");
     try {
-      await destroyRemote(image.publicId);
+      await destroyCloudinaryAsset(image.publicId, "image");
       onChange(value.filter((_, i) => i !== index));
     } catch {
       setError("Could not remove image from Cloudinary.");
@@ -108,7 +105,11 @@ export function GemstoneImageField({ value, onChange, disabled }: Props) {
           onClick={() => inputRef.current?.click()}
           className="rounded-full border border-gold/40 px-4 py-1.5 text-xs text-jewel hover:bg-gold/10 disabled:opacity-50"
         >
-          {uploading ? "Uploading…" : remaining > 0 ? "Add images" : "Limit reached"}
+          {uploading
+            ? `Uploading ${progress}%`
+            : remaining > 0
+              ? "Add images"
+              : "Limit reached"}
         </button>
         <input
           ref={inputRef}

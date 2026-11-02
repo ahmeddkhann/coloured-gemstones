@@ -25,6 +25,7 @@ type Stone = {
   stock: number;
   featured: boolean;
   images: { url: string; publicId: string }[];
+  videos?: { url: string; publicId: string }[];
 };
 
 async function GemstoneDetail({ id }: { id: string }) {
@@ -95,6 +96,27 @@ async function GemstoneDetail({ id }: { id: string }) {
                   Cover
                 </span>
               ) : null}
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {(stone.videos?.length ?? 0) > 0 ? (
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {stone.videos!.map((video, index) => (
+            <div
+              key={video.publicId}
+              className="relative aspect-square overflow-hidden rounded-2xl bg-card"
+            >
+              <video
+                src={video.url}
+                muted
+                playsInline
+                controls
+                preload="metadata"
+                className="h-full w-full object-cover"
+                aria-label={`${stone.name} video ${index + 1}`}
+              />
             </div>
           ))}
         </div>
