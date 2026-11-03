@@ -146,6 +146,11 @@ DEEPSEEK_API_KEY=
 DEEPSEEK_API_URL=https://api.deepseek.com/chat/completions
 DEEPSEEK_MODEL=deepseek-chat
 
+# Groq chatbot
+GROQ_API_KEY=
+GROQ_MODEL=openai/gpt-oss-20b
+GROQ_API_URL=https://api.groq.com/openai/v1/chat/completions
+
 # Cloudinary
 CLOUDINARY_CLOUD_NAME=
 CLOUDINARY_API_KEY=
@@ -536,6 +541,9 @@ Implement in these phases. Finish and sanity-check a phase before starting the n
 | 2026-10-24 | Admin is a Mongo collection (`name`, unique `email`, `passwordHash`, `role`), not env-only credentials. |
 | 2026-11-02 | Media uploads (images + videos) use Cloudinary **signed browser upload** so bytes never hit Vercel body limits. Mongo still stores `{ url, publicId }` only. Videos are optional (`videos[]`, max 3). Destroy stays server-side with the correct `resource_type`. |
 | 2026-11-02 | Media: browser **XHR** → Cloudinary only (Next.js signs + authenticates; no file proxy). Gemstone create/update **verifies** each `publicId` via Cloudinary Admin API before persist. |
+| 2026-11-03 | Public floating chatbot with strict gemstones-only system prompt and lightweight file RAG under `content/rag/` via `getRagContext`; Mongo knowledge + admin edit later. |
+| 2026-11-03 | Chat LLM switched to **Groq** free tier (`GROQ_API_KEY`, default `GROQ_MODEL=openai/gpt-oss-20b`, OpenAI-compatible URL). |
+| 2026-11-03 | Groq model updated: `llama-3.1-8b-instant` deprecated for free/developer tiers; use `openai/gpt-oss-20b`. |
 
 ---
 

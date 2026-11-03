@@ -99,3 +99,36 @@ export const updateOrderSchema = z.object({
 export const recommendationsSchema = z.object({
   slug: z.string().min(1, "Slug is required."),
 });
+
+export const chatMessageSchema = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: z.string().trim().min(1).max(2000),
+});
+
+export const chatRequestSchema = z.object({
+  messages: z
+    .array(chatMessageSchema)
+    .min(1, "Send at least one message.")
+    .max(24, "Conversation is too long."),
+});
+
+export const gemstonePreferenceSchema = z.object({
+  types: z.array(z.string().trim().min(1)).max(8),
+  colours: z.array(z.string().trim().min(1)).max(8),
+  budget: z.enum(["any", "under-1k", "1k-5k", "5k-25k", "25k-plus"]),
+  occasion: z.enum([
+    "any",
+    "engagement",
+    "gift",
+    "collection",
+    "everyday",
+    "investment",
+  ]),
+  caratFeel: z.enum(["any", "delicate", "medium", "statement"]),
+  notes: z.string().trim().max(500).optional(),
+});
+
+export const chatRecommendSchema = z.object({
+  preferences: gemstonePreferenceSchema,
+  messages: z.array(chatMessageSchema).max(12).optional(),
+});

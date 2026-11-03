@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { connection } from "next/server";
 
 import { GemstoneCard } from "@/app/_components/GemstoneCard";
 import { GemstoneFilters } from "@/app/_components/GemstoneFilters";
@@ -19,6 +20,9 @@ type Props = {
 };
 
 export async function CatalogSection({ searchParams }: Props) {
+  // Catalog is request-time Mongo data; opt out of prerender so Mongoose
+  // timestamps do not trip Cache Components' unstable Date checks.
+  await connection();
   const params = await searchParams;
   const page = Math.max(1, Number(params.page) || 1);
   const type = params.type?.trim() || undefined;
@@ -68,7 +72,7 @@ export async function CatalogSection({ searchParams }: Props) {
           </p>
         ) : (
           <>
-            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
               {items.map((gemstone) => (
                 <GemstoneCard key={gemstone.id} gemstone={gemstone} />
               ))}
@@ -115,7 +119,7 @@ export function CatalogSkeleton() {
         <h2 className="mt-3 font-serif text-4xl text-jewel">
           Available gemstones
         </h2>
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, index) => (
             <div
               key={index}

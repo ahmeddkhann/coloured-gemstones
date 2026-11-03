@@ -67,9 +67,21 @@ function escapeRegex(value: string) {
 }
 
 function toPublicGemstone(doc: { toObject?: () => unknown }): PublicGemstone {
-  const stone = serializeDoc(doc) as PublicGemstone;
+  const stone = serializeDoc(doc) as PublicGemstone & Record<string, unknown>;
   return {
-    ...stone,
+    id: stone.id,
+    name: stone.name,
+    slug: stone.slug,
+    description: stone.description,
+    type: stone.type,
+    color: stone.color,
+    cut: stone.cut,
+    clarity: stone.clarity,
+    origin: stone.origin,
+    carat: stone.carat,
+    price: stone.price,
+    stock: stone.stock,
+    featured: Boolean(stone.featured),
     images: stone.images ?? [],
     videos: stone.videos ?? [],
   };

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 
 import { ProductActions } from "@/app/_components/ProductActions";
 import { ProductGallery } from "@/app/_components/ProductGallery";
@@ -8,6 +9,7 @@ import { formatPrice } from "@/lib/currency";
 import { getGemstoneBySlug } from "@/lib/gemstones";
 
 async function ProductPage({ slug }: { slug: string }) {
+  await connection();
   const gemstone = await getGemstoneBySlug(slug);
   if (!gemstone) {
     notFound();

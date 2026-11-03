@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
+import { cardImageUrl, detailImageUrl } from "@/lib/media-url";
+
 type MediaItem = {
   kind: "image" | "video";
   url: string;
@@ -89,10 +91,11 @@ export function ProductGallery({ name, images, videos = [] }: Props) {
           aria-label={`Enlarge photo of ${name}`}
         >
           <Image
-            src={current.url}
+            src={detailImageUrl(current.url)}
             alt={name}
             fill
             priority
+            unoptimized
             className="object-cover transition duration-500 group-hover:scale-[1.02]"
             sizes="(max-width: 768px) 100vw, 50vw"
           />
@@ -135,9 +138,10 @@ export function ProductGallery({ name, images, videos = [] }: Props) {
                 </>
               ) : (
                 <Image
-                  src={item.url}
+                  src={cardImageUrl(item.url)}
                   alt=""
                   fill
+                  unoptimized
                   className="object-cover"
                   sizes="64px"
                 />
@@ -167,9 +171,10 @@ export function ProductGallery({ name, images, videos = [] }: Props) {
             onClick={(event) => event.stopPropagation()}
           >
             <Image
-              src={current.url}
+              src={detailImageUrl(current.url)}
               alt={name}
               fill
+              unoptimized
               className="object-contain"
               sizes="100vw"
               priority

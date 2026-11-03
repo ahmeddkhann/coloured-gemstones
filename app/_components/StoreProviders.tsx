@@ -1,12 +1,21 @@
 "use client";
 
 import { CartProvider } from "@/app/_components/cart/CartProvider";
+import { StoreFloats } from "@/app/_components/StoreFloats";
 import { WishlistProvider } from "@/app/_components/wishlist/WishlistProvider";
 
-export function StoreProviders({ children }: { children: React.ReactNode }) {
+type Props = {
+  children: React.ReactNode;
+  whatsappNumber?: string;
+};
+
+export function StoreProviders({ children, whatsappNumber = "" }: Props) {
   return (
     <CartProvider>
-      <WishlistProvider>{children}</WishlistProvider>
+      <WishlistProvider>
+        {children}
+        <StoreFloats whatsappNumber={whatsappNumber} />
+      </WishlistProvider>
     </CartProvider>
   );
 }

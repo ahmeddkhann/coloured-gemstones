@@ -5,8 +5,14 @@ const nextConfig: NextConfig = {
   experimental: {
     agentFeedback: true,
   },
+  // RAG markdown is read via fs at runtime — include it in the chat route trace.
+  outputFileTracingIncludes: {
+    "/api/chat": ["./content/rag/**/*"],
+  },
   cacheComponents: true,
-  partialPrefetching: true,
+  // partialPrefetching was causing continuous / compiles + full page refetch
+  // loops in local dev with the catalog Suspense boundary. Re-enable later.
+  partialPrefetching: false,
   images: {
     remotePatterns: [
       {

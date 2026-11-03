@@ -4,6 +4,7 @@ import {
   CatalogSection,
   CatalogSkeleton,
 } from "@/app/_components/CatalogSection";
+import { FindMyStoneQuiz } from "@/app/_components/FindMyStoneQuiz";
 
 export default function Home({
   searchParams,
@@ -30,16 +31,24 @@ export default function Home({
             Sapphires, rubies, emeralds and rare stones sourced for collectors
             who prefer provenance over noise.
           </p>
-          <div className="mt-10">
+          <div className="mt-10 flex flex-wrap gap-3">
             <a
               href="#collection"
               className="inline-block rounded-full bg-jewel px-6 py-3 text-sm text-[#f7f1e8] transition hover:bg-[#0b2e22]"
             >
               View the collection
             </a>
+            <a
+              href="#find-my-stone"
+              className="inline-block rounded-full border border-gold/50 px-6 py-3 text-sm text-jewel transition hover:bg-gold/10"
+            >
+              Find my stone
+            </a>
           </div>
         </div>
       </section>
+
+      <FindMyStoneQuiz />
 
       <Suspense fallback={<CatalogSkeleton />}>
         <CatalogSection searchParams={searchParams} />

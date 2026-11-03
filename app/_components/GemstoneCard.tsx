@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useWishlist } from "@/app/_components/wishlist/WishlistProvider";
 import { formatPrice } from "@/lib/currency";
 import type { PublicGemstone } from "@/lib/gemstones";
+import { cardImageUrl } from "@/lib/media-url";
 
 type Props = {
   gemstone: Pick<
@@ -41,13 +42,18 @@ export function GemstoneCard({ gemstone }: Props) {
       >
         {cover ? (
           <Image
-            src={cover.url}
+            src={cardImageUrl(cover.url)}
             alt={gemstone.name}
             fill
+            unoptimized
             className="object-cover transition duration-500 group-hover:scale-[1.03]"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           />
-        ) : null}
+        ) : (
+          <div className="flex h-full items-center justify-center text-xs uppercase tracking-[0.18em] text-ink-soft">
+            No image
+          </div>
+        )}
         {soldOut ? (
           <span className="absolute left-3 top-3 rounded-full bg-[#1a1612]/80 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-[#f7f1e8]">
             Sold out
@@ -55,23 +61,23 @@ export function GemstoneCard({ gemstone }: Props) {
         ) : null}
       </Link>
 
-      <div className="px-4 py-4">
-        <p className="text-[10px] uppercase tracking-[0.22em] text-gold">
+      <div className="px-2.5 py-3 sm:px-4 sm:py-4">
+        <p className="text-[9px] uppercase tracking-[0.18em] text-gold sm:text-[10px] sm:tracking-[0.22em]">
           {gemstone.type}
         </p>
         <Link href={`/gemstones/${gemstone.slug}`}>
-          <h3 className="mt-1 font-serif text-xl text-jewel hover:underline">
+          <h3 className="mt-1 font-serif text-base leading-snug text-jewel hover:underline sm:text-xl">
             {gemstone.name}
           </h3>
         </Link>
-        <p className="mt-2 text-sm text-ink-soft">
+        <p className="mt-1.5 text-xs text-ink-soft sm:mt-2 sm:text-sm">
           {gemstone.carat} ct · {formatPrice(gemstone.price)}
         </p>
 
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-3 flex flex-wrap gap-1.5 sm:mt-4 sm:gap-2">
           <Link
             href={`/gemstones/${gemstone.slug}`}
-            className="rounded-full bg-jewel px-4 py-2 text-xs text-[#f7f1e8] transition hover:bg-[#0b2e22]"
+            className="rounded-full bg-jewel px-3 py-1.5 text-[11px] text-[#f7f1e8] transition hover:bg-[#0b2e22] sm:px-4 sm:py-2 sm:text-xs"
           >
             View
           </Link>
@@ -80,7 +86,7 @@ export function GemstoneCard({ gemstone }: Props) {
             aria-pressed={wished}
             aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
             onClick={onWishlist}
-            className={`rounded-full border px-4 py-2 text-xs transition ${
+            className={`rounded-full border px-3 py-1.5 text-[11px] transition sm:px-4 sm:py-2 sm:text-xs ${
               wished
                 ? "border-jewel bg-jewel/10 text-jewel"
                 : "border-gold/40 text-jewel hover:bg-gold/10"

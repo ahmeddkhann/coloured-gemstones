@@ -3,7 +3,7 @@ import { Geist, Playfair_Display } from "next/font/google";
 
 import { Header } from "@/app/_components/Header";
 import { StoreProviders } from "@/app/_components/StoreProviders";
-import { WhatsAppLauncher } from "@/app/_components/WhatsAppLauncher";
+import { getWhatsAppNumber } from "@/lib/whatsapp";
 
 import "./globals.css";
 
@@ -29,10 +29,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <StoreProviders>
+        <StoreProviders whatsappNumber={getWhatsAppNumber()}>
           <Header />
           <div className="flex flex-1 flex-col">{children}</div>
-          <WhatsAppLauncher />
         </StoreProviders>
       </body>
     </html>
