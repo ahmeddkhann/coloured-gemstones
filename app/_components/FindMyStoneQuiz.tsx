@@ -259,8 +259,9 @@ export function FindMyStoneQuiz() {
           Find my stone
         </h2>
         <p className="mt-2 max-w-2xl text-sm text-ink-soft sm:text-base">
-          Answer a few preference questions. We ask our Gemstone AI to suggest
-          only from stones currently in the catalogue.
+          Answer a few preference questions. Stones need at least two matches
+          (type, colour, budget, occasion, size, or notes). The highest match
+          count wins — ties show every equal best fit.
         </p>
 
         <div className="mt-8 rounded-3xl border border-gold/25 bg-card p-5 sm:p-8">

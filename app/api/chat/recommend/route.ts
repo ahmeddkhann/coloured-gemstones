@@ -12,10 +12,6 @@ export async function POST(request: Request) {
       return zodError(parsed.error);
     }
 
-    if (!process.env.GROQ_API_KEY?.trim()) {
-      return jsonError("Recommendations are temporarily unavailable.", 503);
-    }
-
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
@@ -30,7 +26,7 @@ export async function POST(request: Request) {
       if (error instanceof Error && error.name === "AbortError") {
         return jsonError("The assistant took too long. Please try again.", 504);
       }
-      console.error("Groq recommend failed", error);
+      console.error("Recommend failed", error);
       return jsonError("Could not build recommendations right now.", 502);
     } finally {
       clearTimeout(timeout);

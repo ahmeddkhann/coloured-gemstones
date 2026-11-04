@@ -6,6 +6,11 @@ import {
   hydrateGemstonesBySlugs,
   type CatalogStoneForAi,
 } from "@/lib/chat/catalog-for-ai";
+import {
+  MIN_PREFERENCE_MATCHES,
+  buildMatchReason,
+  pickRecommendationsByPreferenceScore,
+} from "@/lib/chat/preference-score";
 import { getRagContext } from "@/lib/chat/rag";
 import { chatWithGroq, type GroqChatMessage } from "@/lib/groq";
 import type { PublicGemstone } from "@/lib/gemstones";
@@ -19,19 +24,16 @@ export type RecommendPreferences = {
   notes?: string;
 };
 
-const RECOMMEND_SYSTEM_PROMPT = `You are the catalogue recommender for Coloured Gemstones.
+const REASON_SYSTEM_PROMPT = `You are the catalogue recommender for Coloured Gemstones.
 
 RULES
-- Recommend ONLY from the provided live catalogue. Never invent stones, slugs, prices, or stock.
-- Return JSON only, no markdown fences: {"slugs":["..."],"reason":"...","questions":["..."]}
-- "slugs" must be 1–3 catalogue slugs that best match the shopper preferences. If nothing fits, return an empty slugs array and explain in reason.
-- "reason" is a short British-English explanation for the shopper.
+- The shortlist slugs are already chosen by preference matching. Do NOT change or invent slugs.
+- Return JSON only, no markdown fences: {"reason":"...","questions":["..."]}
+- "reason" is a short British-English explanation for why these stones fit (mention matched preferences).
 - "questions" is optional (0–2 short follow-up preference questions).
-- Prefer in-stock stones. Respect budget bands when given.
-- If the catalogue is empty, return {"slugs":[],"reason":"We are sourcing new stones right now.","questions":[]}.`;
+- If the shortlist is empty, explain briefly how to broaden preferences.`;
 
-function parseRecommendJson(raw: string): {
-  slugs: string[];
+function parseReasonJson(raw: string): {
   reason: string;
   questions: string[];
 } {
@@ -41,27 +43,92 @@ function parseRecommendJson(raw: string): {
     start >= 0 && end > start ? raw.slice(start, end + 1) : raw;
 
   const parsed = JSON.parse(jsonText) as {
-    slugs?: unknown;
     reason?: unknown;
     questions?: unknown;
   };
 
-  const slugs = Array.isArray(parsed.slugs)
-    ? parsed.slugs.filter((slug): slug is string => typeof slug === "string")
-    : [];
   const reason =
     typeof parsed.reason === "string" && parsed.reason.trim()
       ? parsed.reason.trim()
-      : "Here are stones from our catalogue that may suit you.";
+      : "";
   const questions = Array.isArray(parsed.questions)
     ? parsed.questions
         .filter((q): q is string => typeof q === "string" && q.trim().length > 0)
         .slice(0, 2)
     : [];
 
-  return { slugs: slugs.slice(0, 3), reason, questions };
+  return { reason, questions };
 }
 
+async function polishReasonWithGroq(input: {
+  preferences: RecommendPreferences;
+  winners: Array<{
+    slug: string;
+    name: string;
+    score: number;
+    matched: string[];
+  }>;
+  fallbackReason: string;
+  history: Array<{ role: "user" | "assistant"; content: string }>;
+  catalog: CatalogStoneForAi[];
+  signal?: AbortSignal;
+}): Promise<{ reason: string; questions: string[] }> {
+  if (!process.env.GROQ_API_KEY?.trim()) {
+    return { reason: input.fallbackReason, questions: [] };
+  }
+
+  try {
+    const ragContext = await getRagContext(
+      [
+        input.preferences.types.join(" "),
+        input.preferences.colours.join(" "),
+        input.preferences.budget,
+        input.preferences.occasion,
+        input.preferences.caratFeel,
+        input.preferences.notes ?? "",
+        "available gemstones catalogue",
+      ].join(" "),
+    );
+
+    const messages: GroqChatMessage[] = [
+      {
+        role: "system",
+        content: `${REASON_SYSTEM_PROMPT}\n\nKnowledge context:\n${ragContext.trim() || "(No extra knowledge.)"}\n\nLive in-stock catalogue:\n${formatCatalogForPrompt(input.catalog)}`,
+      },
+      ...input.history.slice(-8).map((message) => ({
+        role: message.role,
+        content: message.content,
+      })),
+      {
+        role: "user",
+        content: JSON.stringify({
+          task: "explain_preference_matches",
+          preferences: input.preferences,
+          minMatchesRequired: MIN_PREFERENCE_MATCHES,
+          shortlist: input.winners,
+          fallbackReason: input.fallbackReason,
+        }),
+      },
+    ];
+
+    const raw = await chatWithGroq(messages, { signal: input.signal });
+    const polished = parseReasonJson(raw);
+    return {
+      reason: polished.reason || input.fallbackReason,
+      questions: polished.questions,
+    };
+  } catch (error) {
+    console.error("Recommend reason polish failed", error);
+    return { reason: input.fallbackReason, questions: [] };
+  }
+}
+
+/**
+ * Recommend by preference score:
+ * - Need ≥2 matched preferences to qualify
+ * - Highest score wins
+ * - If several stones share the top score, recommend all of them
+ */
 export async function recommendFromPreferences(
   preferences: RecommendPreferences,
   history: Array<{ role: "user" | "assistant"; content: string }> = [],
@@ -71,72 +138,48 @@ export async function recommendFromPreferences(
   reason: string;
   questions: string[];
   reply?: string;
+  maxScore?: number;
+  minMatchesRequired?: number;
 }> {
   const catalog: CatalogStoneForAi[] = await getInStockCatalogForAi();
-  const allowed = new Set(catalog.map((stone) => stone.slug));
-  const liveCatalog = formatCatalogForPrompt(catalog);
-  const ragContext = await getRagContext(
-    [
-      preferences.types.join(" "),
-      preferences.colours.join(" "),
-      preferences.budget,
-      preferences.occasion,
-      preferences.caratFeel,
-      preferences.notes ?? "",
-      "available gemstones catalogue",
-    ].join(" "),
-  );
 
-  const messages: GroqChatMessage[] = [
-    {
-      role: "system",
-      content: `${RECOMMEND_SYSTEM_PROMPT}\n\nKnowledge context:\n${ragContext.trim() || "(No extra knowledge.)"}\n\nLive in-stock catalogue:\n${liveCatalog}`,
-    },
-    ...history.slice(-8).map((message) => ({
-      role: message.role,
-      content: message.content,
-    })),
-    {
-      role: "user",
-      content: JSON.stringify({
-        task: "recommend_gemstones",
-        preferences,
-      }),
-    },
-  ];
-
-  const raw = await chatWithGroq(messages, { signal });
-
-  let recommendation: {
-    slugs: string[];
-    reason: string;
-    questions: string[];
-  };
-  try {
-    recommendation = parseRecommendJson(raw);
-  } catch {
-    console.error("Recommend JSON parse failed", raw);
+  if (catalog.length === 0) {
     return {
       items: [],
-      reason:
-        "I could not form a clean shortlist. Try adjusting preferences or ask in chat.",
+      reason: "We are sourcing new stones right now.",
       questions: [],
-      reply: raw.slice(0, 600),
+      minMatchesRequired: MIN_PREFERENCE_MATCHES,
+      maxScore: 0,
     };
   }
 
-  const validSlugs = recommendation.slugs.filter((slug) => allowed.has(slug));
-  const items = await hydrateGemstonesBySlugs(validSlugs);
+  const { winners, active, maxScore } = pickRecommendationsByPreferenceScore(
+    catalog,
+    preferences,
+  );
+  const fallbackReason = buildMatchReason(winners, active, maxScore);
+  const slugs = winners.map((entry) => entry.stone.slug);
+  const items = await hydrateGemstonesBySlugs(slugs);
+
+  const { reason, questions } = await polishReasonWithGroq({
+    preferences,
+    winners: winners.map((entry) => ({
+      slug: entry.stone.slug,
+      name: entry.stone.name,
+      score: entry.score,
+      matched: entry.matched,
+    })),
+    fallbackReason,
+    history,
+    catalog,
+    signal,
+  });
 
   return {
     items,
-    reason:
-      items.length > 0
-        ? recommendation.reason
-        : catalog.length === 0
-          ? "We are sourcing new stones right now."
-          : recommendation.reason ||
-            "Nothing in stock matched closely — try broader preferences.",
-    questions: recommendation.questions,
+    reason: items.length > 0 || winners.length === 0 ? reason : fallbackReason,
+    questions,
+    maxScore,
+    minMatchesRequired: MIN_PREFERENCE_MATCHES,
   };
 }
