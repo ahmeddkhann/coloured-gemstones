@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { formatPrice } from "@/lib/currency";
@@ -16,7 +17,7 @@ type OrderRow = {
   items: Array<{ name: string; quantity: number }>;
 };
 
-export default async function AccountOrdersPage() {
+async function AccountOrders() {
   const session = await getCustomerSession();
   if (!session) {
     redirect("/account/login");
@@ -83,5 +84,15 @@ export default async function AccountOrdersPage() {
         </ul>
       )}
     </main>
+  );
+}
+
+export default function AccountOrdersPage() {
+  return (
+    <Suspense
+      fallback={<p className="text-sm text-ink-soft">Loading orders…</p>}
+    >
+      <AccountOrders />
+    </Suspense>
   );
 }

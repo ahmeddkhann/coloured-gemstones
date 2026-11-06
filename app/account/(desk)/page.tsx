@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { formatPrice } from "@/lib/currency";
@@ -15,7 +16,7 @@ type OrderRow = {
   createdAt?: string | Date;
 };
 
-export default async function AccountOverviewPage() {
+async function AccountOverview() {
   const session = await getCustomerSession();
   if (!session) {
     redirect("/account/login");
@@ -97,5 +98,15 @@ export default async function AccountOverviewPage() {
         )}
       </section>
     </main>
+  );
+}
+
+export default function AccountOverviewPage() {
+  return (
+    <Suspense
+      fallback={<p className="text-sm text-ink-soft">Loading overview…</p>}
+    >
+      <AccountOverview />
+    </Suspense>
   );
 }

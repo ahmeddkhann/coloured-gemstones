@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { ProfileForm } from "@/app/account/_components/ProfileForm";
@@ -5,7 +6,7 @@ import { getCustomerSession } from "@/lib/customer-auth";
 import { connectDB } from "@/lib/mongodb";
 import { CustomerModel } from "@/lib/models/Customer";
 
-export default async function AccountSettingsPage() {
+async function AccountSettings() {
   const session = await getCustomerSession();
   if (!session) {
     redirect("/account/login");
@@ -39,5 +40,15 @@ export default async function AccountSettingsPage() {
         }}
       />
     </main>
+  );
+}
+
+export default function AccountSettingsPage() {
+  return (
+    <Suspense
+      fallback={<p className="text-sm text-ink-soft">Loading settings…</p>}
+    >
+      <AccountSettings />
+    </Suspense>
   );
 }

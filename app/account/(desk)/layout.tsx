@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { AccountNav } from "@/app/account/_components/AccountNav";
@@ -5,11 +6,7 @@ import { getCustomerSession } from "@/lib/customer-auth";
 import { connectDB } from "@/lib/mongodb";
 import { CustomerModel } from "@/lib/models/Customer";
 
-export default async function AccountDeskLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+async function AccountDeskShell({ children }: { children: React.ReactNode }) {
   const session = await getCustomerSession();
   if (!session) {
     redirect("/account/login");
@@ -39,5 +36,23 @@ export default async function AccountDeskLayout({
         {children}
       </div>
     </div>
+  );
+}
+
+export default function AccountDeskLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex flex-1 items-center justify-center px-5 py-16 text-ink-soft">
+          Opening your account…
+        </main>
+      }
+    >
+      <AccountDeskShell>{children}</AccountDeskShell>
+    </Suspense>
   );
 }

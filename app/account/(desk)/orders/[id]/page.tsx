@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import { isValidObjectId } from "mongoose";
 
@@ -38,12 +39,7 @@ type OrderDetail = {
   }>;
 };
 
-export default async function AccountOrderDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+async function AccountOrderDetail({ id }: { id: string }) {
   const session = await getCustomerSession();
   if (!session) {
     redirect("/account/login");
@@ -163,4 +159,27 @@ export default async function AccountOrderDetailPage({
       </section>
     </main>
   );
+}
+
+export default function AccountOrderDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  return (
+    <Suspense
+      fallback={<p className="text-sm text-ink-soft">Loading order…</p>}
+    >
+      <AccountOrderDetailLoader params={params} />
+    </Suspense>
+  );
+}
+
+async function AccountOrderDetailLoader({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  return <AccountOrderDetail id={id} />;
 }

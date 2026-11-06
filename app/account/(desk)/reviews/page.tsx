@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { ReviewForm } from "@/app/account/_components/ReviewForm";
@@ -24,7 +25,7 @@ type ReviewRow = {
   gemstoneId: string;
 };
 
-export default async function AccountReviewsPage() {
+async function AccountReviews() {
   const session = await getCustomerSession();
   if (!session) {
     redirect("/account/login");
@@ -171,5 +172,15 @@ export default async function AccountReviewsPage() {
         )}
       </section>
     </main>
+  );
+}
+
+export default function AccountReviewsPage() {
+  return (
+    <Suspense
+      fallback={<p className="text-sm text-ink-soft">Loading reviews…</p>}
+    >
+      <AccountReviews />
+    </Suspense>
   );
 }
