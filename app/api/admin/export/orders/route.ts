@@ -38,7 +38,7 @@ export async function GET() {
       order.customer.address,
       order.items
         .map(
-          (item) =>
+          (item: { name: string; quantity: number; price: number }) =>
             `${item.name} x${item.quantity} @ ${item.price}`,
         )
         .join("; "),

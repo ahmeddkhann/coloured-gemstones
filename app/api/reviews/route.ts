@@ -45,7 +45,8 @@ export async function POST(request: Request) {
     }
 
     const purchased = order.items.some(
-      (item) => String(item.gemstoneId) === parsed.data.gemstoneId,
+      (item: { gemstoneId: unknown }) =>
+        String(item.gemstoneId) === parsed.data.gemstoneId,
     );
     if (!purchased) {
       return jsonError("That gemstone is not on this order.", 400);
