@@ -1,13 +1,15 @@
 import { Suspense } from "react";
 
-import { VerifyForm } from "@/app/_components/VerifyForm";
+import { AdminVerifyForm } from "@/app/admin/_components/AdminVerifyForm";
 
 export default function AdminVerifyOtpPage() {
   return (
-    <main className="flex flex-1 items-center justify-center px-5 py-16">
-      <Suspense fallback={<p className="text-ink-soft">Opening verification…</p>}>
-        <VerifyForm />
-      </Suspense>
-    </main>
+    <Suspense
+      fallback={
+        <p className="text-sm text-[var(--admin-muted)]">Opening verification…</p>
+      }
+    >
+      <AdminVerifyForm />
+    </Suspense>
   );
 }

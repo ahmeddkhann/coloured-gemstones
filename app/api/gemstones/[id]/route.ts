@@ -8,6 +8,7 @@ import {
 } from "@/lib/cloudinary";
 import { connectDB } from "@/lib/mongodb";
 import { GemstoneModel } from "@/lib/models/Gemstone";
+import { PriceHistoryModel } from "@/lib/models/PriceHistory";
 import { requireAdmin } from "@/lib/require-admin";
 import { serializeDoc } from "@/lib/serialize";
 import { uniqueGemstoneSlug } from "@/lib/slug";
@@ -102,6 +103,19 @@ export async function PATCH(
       if (removed.length > 0) {
         await destroyVideos(removed);
       }
+    }
+
+    if (
+      typeof updates.price === "number" &&
+      updates.price !== gemstone.price
+    ) {
+      await PriceHistoryModel.create({
+        gemstoneId: gemstone._id,
+        oldPrice: gemstone.price,
+        newPrice: updates.price,
+        changedBy: auth.admin.adminId,
+        changedAt: new Date(),
+      });
     }
 
     Object.assign(gemstone, updates);

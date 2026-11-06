@@ -21,6 +21,73 @@ export const updateProfileSchema = z.object({
   ]).optional(),
 });
 
+export const customerSignupSchema = z
+  .object({
+    name: z.string().min(1, "Name is required."),
+    email: z.string().email("Enter a valid email."),
+    phone: z.string().min(5, "Phone is required."),
+    address: z.string().min(1, "Address is required."),
+    password: z.string().min(8, "Password must be at least 8 characters."),
+    confirmPassword: z.string().min(8, "Confirm password is required."),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Password and confirm password must match.",
+    path: ["confirmPassword"],
+  });
+
+export const customerSigninSchema = z.object({
+  email: z.string().email("Enter a valid email."),
+  password: z.string().min(1, "Password is required."),
+});
+
+export const customerForgotSchema = z.object({
+  email: z.string().email("Enter a valid email."),
+});
+
+export const customerResetPasswordSchema = z
+  .object({
+    password: z.string().min(8, "Password must be at least 8 characters."),
+    confirmPassword: z.string().min(8, "Confirm password is required."),
+    resetToken: z.string().optional(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "New password and confirm password must match.",
+    path: ["confirmPassword"],
+  });
+
+export const customerProfileUpdateSchema = z
+  .object({
+    name: z.string().min(1, "Name is required."),
+    phone: z.string().min(5, "Phone is required."),
+    address: z.string().min(1, "Address is required."),
+    password: z.union([
+      z.string().min(8, "Password must be at least 8 characters."),
+      z.literal(""),
+    ]).optional(),
+    confirmPassword: z.union([
+      z.string().min(8, "Confirm password is required."),
+      z.literal(""),
+    ]).optional(),
+  })
+  .superRefine((data, ctx) => {
+    const password = data.password ?? "";
+    const confirm = data.confirmPassword ?? "";
+    if (password && password !== confirm) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Password and confirm password must match.",
+        path: ["confirmPassword"],
+      });
+    }
+  });
+
+export const createReviewSchema = z.object({
+  gemstoneId: z.string().min(1, "Gemstone is required."),
+  orderId: z.string().min(1, "Order is required."),
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().trim().min(1, "Review text is required.").max(2000),
+});
+
 export const otpVerifySchema = z.object({
   email: z.string().email("Enter a valid email."),
   code: z.string().regex(/^\d{6}$/, "Enter the 6-digit code."),

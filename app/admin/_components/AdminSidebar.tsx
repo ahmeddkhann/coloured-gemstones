@@ -9,6 +9,9 @@ const links = [
   { href: "/admin/gemstones", label: "Gemstones" },
   { href: "/admin/gemstones/new", label: "New listing" },
   { href: "/admin/orders", label: "Orders" },
+  { href: "/admin/customers", label: "Customers" },
+  { href: "/admin/reviews", label: "Reviews" },
+  { href: "/admin/analytics/prices", label: "Price history" },
   { href: "/admin/admins/new", label: "Admins" },
   { href: "/admin/settings", label: "Settings" },
 ] as const;
@@ -36,7 +39,7 @@ export function AdminSidebar() {
     setSigningOut(true);
     try {
       await fetch("/api/auth/logout", { method: "POST" });
-      router.push("/admin/login");
+      router.push("/");
       router.refresh();
     } finally {
       setSigningOut(false);

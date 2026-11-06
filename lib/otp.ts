@@ -49,11 +49,11 @@ export async function issueOtp(
     consumed: false,
   });
 
-  try {
-    await sendOtpEmail(email, code, options?.reason ?? "signin");
-  } catch (error) {
-    console.error("[mail] Failed to send OTP email.", error);
-    throw error;
+  const mailed = await sendOtpEmail(email, code, options?.reason ?? "signin");
+  if (!mailed.sent) {
+    console.info(
+      `[otp] Email not delivered (${mailed.reason ?? "unknown"}). Use this code for ${email}: ${code}`,
+    );
   }
 
   return { ok: true as const };

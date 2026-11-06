@@ -2,6 +2,7 @@ import mongoose, { isValidObjectId } from "mongoose";
 
 import { handleRouteError, jsonError, jsonOk, readJson, zodError } from "@/lib/api";
 import { ORDER_STATUSES } from "@/lib/constants";
+import { getCustomerSession } from "@/lib/customer-auth";
 import {
   sendNewOrderToAdmin,
   sendOrderReceivedToCustomer,
@@ -44,6 +45,8 @@ export async function POST(request: Request) {
     }
 
     await connectDB();
+
+    const customerSession = await getCustomerSession();
 
     const items: Array<{
       gemstoneId: mongoose.Types.ObjectId;
@@ -98,6 +101,9 @@ export async function POST(request: Request) {
           [
             {
               orderNumber,
+              ...(customerSession
+                ? { customerId: customerSession.customerId }
+                : {}),
               customer: parsed.data.customer,
               items,
               subtotal,

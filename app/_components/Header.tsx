@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { AccountMenu } from "@/app/_components/AccountMenu";
+import { AdminMenu } from "@/app/_components/AdminMenu";
 import { useCart } from "@/app/_components/cart/CartProvider";
 import { useWishlist } from "@/app/_components/wishlist/WishlistProvider";
 
@@ -69,6 +70,7 @@ export function Header() {
             ) : null}
           </Link>
           <AccountMenu />
+          <AdminMenu />
         </nav>
       </div>
     </header>

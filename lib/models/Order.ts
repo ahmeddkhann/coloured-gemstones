@@ -43,6 +43,12 @@ const statusHistorySchema = new Schema(
 const orderSchema = new Schema(
   {
     orderNumber: { type: String, required: true, unique: true },
+    customerId: {
+      type: Schema.Types.ObjectId,
+      ref: "Customer",
+      required: false,
+      index: true,
+    },
     customer: { type: customerSchema, required: true },
     items: {
       type: [orderItemSchema],

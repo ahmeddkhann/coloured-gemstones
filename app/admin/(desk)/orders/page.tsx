@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
+import { ExportCsvButton } from "@/app/admin/_components/ExportCsvButton";
 import { ORDER_STATUSES, type OrderStatus } from "@/lib/constants";
 import { formatPrice } from "@/lib/currency";
 import { getAdminSession } from "@/lib/auth";
@@ -52,10 +53,16 @@ async function OrdersPage({
       <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[var(--admin-ink)]">
         Orders
       </h1>
-      <p className="mt-1 text-sm text-[var(--admin-muted)]">
-        {orders.length} order{orders.length === 1 ? "" : "s"}
-        {statusFilter ? ` · ${statusFilter}` : ""}.
-      </p>
+      <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-[var(--admin-muted)]">
+          {orders.length} order{orders.length === 1 ? "" : "s"}
+          {statusFilter ? ` · ${statusFilter}` : ""}.
+        </p>
+        <ExportCsvButton
+          href="/api/admin/export/orders"
+          label="Export CSV"
+        />
+      </div>
 
       <div className="mt-6 flex flex-wrap gap-2">
         <FilterChip href="/admin/orders" active={!statusFilter} label="All" />

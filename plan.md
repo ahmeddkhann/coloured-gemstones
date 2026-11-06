@@ -44,7 +44,7 @@ These are settled so implementation does not stall on product questions.
 
 | Topic | Decision |
 | --- | --- |
-| Customer accounts | **None in v1.** Anyone can browse and order. |
+| Customer accounts | **Added in v1.1.** Email/password signup with OTP verification; password-only sign-in; forgot-password OTP. Guest checkout remains. |
 | Admin accounts | **Admins live in Mongo.** `Admin` collection: name, unique email, `passwordHash` (never a plain password). Login later checks this collection. Session is an HTTP-only signed cookie. |
 | Cart | **Client-side.** `localStorage` + React context. No carts collection. |
 | Checkout | Guest form: name, email, phone, address, optional notes. |
@@ -59,7 +59,8 @@ These are settled so implementation does not stall on product questions.
 | Emails | Nodemailer. Customer order confirmation + admin new-order alert + customer status-change notice. |
 | Language / locale | English UI. British spelling in copy (“coloured”). |
 
-Out of scope for v1: customer login, reviews, wishlist, coupons, live card payments, multi-admin roles, blog, i18n.
+Out of scope for v1: coupons, live card payments, multi-admin roles, blog, i18n.
+In scope for v1.1: customer accounts, reviews on delivered purchases, admin CRM, CSV export, gemstone price history charts.
 
 **Rejected image options:** local `public/uploads` (lost on serverless deploys, no CDN) and storing WebP/GridFS binaries in Mongo (backs up slowly, every page view hits the database, no transforms). WebP is a delivery format, not a storage strategy — Cloudinary already serves WebP/AVIF to browsers that support it.
 
@@ -544,6 +545,9 @@ Implement in these phases. Finish and sanity-check a phase before starting the n
 | 2026-11-03 | Public floating chatbot with strict gemstones-only system prompt and lightweight file RAG under `content/rag/` via `getRagContext`; Mongo knowledge + admin edit later. |
 | 2026-11-03 | Chat LLM switched to **Groq** free tier (`GROQ_API_KEY`, default `GROQ_MODEL=openai/gpt-oss-20b`, OpenAI-compatible URL). |
 | 2026-11-03 | Groq model updated: `llama-3.1-8b-instant` deprecated for free/developer tiers; use `openai/gpt-oss-20b`. |
+| 2026-11-04 | Customer accounts: signup OTP (`signup` purpose), password sign-in (no OTP), forgot-password OTP, profile updates. Hybrid checkout links `customerId` when signed in. |
+| 2026-11-04 | Reviews: one per customer per gemstone after order `delivered`; shown on PDP; admin can delete. |
+| 2026-11-04 | Admin CRM for customers/orders/reviews; CSV export for orders and gemstones; price changes logged to `PriceHistory` with Recharts admin analytics. |
 
 ---
 

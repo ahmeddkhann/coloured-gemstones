@@ -28,6 +28,39 @@ export default function CheckoutPage() {
     }
   }, [ready, itemCount, router]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    async function prefill() {
+      try {
+        const response = await fetch("/api/customer-auth/me");
+        const payload = (await response.json()) as {
+          ok: boolean;
+          data?: {
+            name?: string;
+            email?: string;
+            phone?: string;
+            address?: string;
+          };
+        };
+        if (cancelled || !response.ok || !payload.ok || !payload.data) {
+          return;
+        }
+        setName((current) => current || payload.data?.name || "");
+        setEmail((current) => current || payload.data?.email || "");
+        setPhone((current) => current || payload.data?.phone || "");
+        setAddress((current) => current || payload.data?.address || "");
+      } catch {
+        // Guest checkout stays available.
+      }
+    }
+
+    void prefill();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setError("");

@@ -5,6 +5,7 @@ import { connection } from "next/server";
 
 import { ProductActions } from "@/app/_components/ProductActions";
 import { ProductGallery } from "@/app/_components/ProductGallery";
+import { ProductReviews } from "@/app/_components/ProductReviews";
 import { formatPrice } from "@/lib/currency";
 import { getGemstoneBySlug } from "@/lib/gemstones";
 
@@ -76,6 +77,14 @@ async function ProductPage({ slug }: { slug: string }) {
           </dl>
         </div>
       </div>
+
+      <Suspense
+        fallback={
+          <p className="mt-16 text-sm text-ink-soft">Loading reviews…</p>
+        }
+      >
+        <ProductReviews gemstoneId={gemstone.id} />
+      </Suspense>
     </main>
   );
 }

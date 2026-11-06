@@ -33,11 +33,11 @@ h3,
   font-family: var(--font-playfair), "Times New Roman", serif;
 }
 
-/* Hide storefront chrome on admin routes (avoids usePathname in root Header) */
-body:has(.admin-route) .storefront-header,
-body:has(.admin-route) .whatsapp-float,
-body:has(.admin-route) .chatbot-float {
-  display: none;
+/* Hide storefront chrome only while an admin page is mounted. Cleared on leave. */
+html[data-admin-route="true"] .storefront-header,
+html[data-admin-route="true"] .whatsapp-float,
+html[data-admin-route="true"] .chatbot-float {
+  display: none !important;
 }
 
 @keyframes chatbot-ai-pulse {

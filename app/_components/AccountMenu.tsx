@@ -7,21 +7,21 @@ export function AccountMenu() {
   const router = useRouter();
   const [pending, setPending] = useState(false);
 
-  async function goToAdmin() {
+  async function goToAccount() {
     if (pending) {
       return;
     }
     setPending(true);
     try {
-      const response = await fetch("/api/auth/me");
+      const response = await fetch("/api/customer-auth/me");
       const payload = (await response.json()) as { ok: boolean };
       if (response.ok && payload.ok) {
-        router.push("/admin");
+        router.push("/account");
       } else {
-        router.push("/admin/login");
+        router.push("/account/login");
       }
     } catch {
-      router.push("/admin/login");
+      router.push("/account/login");
     } finally {
       setPending(false);
     }
@@ -30,9 +30,9 @@ export function AccountMenu() {
   return (
     <button
       type="button"
-      aria-label="Admin account"
+      aria-label="Account"
       disabled={pending}
-      onClick={() => void goToAdmin()}
+      onClick={() => void goToAccount()}
       className="flex h-10 w-10 items-center justify-center rounded-full border border-gold/40 text-jewel transition hover:bg-gold/10 disabled:opacity-60"
     >
       <svg

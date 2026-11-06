@@ -30,6 +30,19 @@ type OrderMailPayload = {
   status: OrderStatus;
 };
 
+function looksLikePlaceholderSecret(value: string) {
+  const normalized = value.trim().toLowerCase();
+  return (
+    !normalized ||
+    normalized.includes("<") ||
+    normalized.includes("your-") ||
+    normalized.includes("change-me") ||
+    normalized.includes("example") ||
+    normalized === "password" ||
+    normalized === "secret"
+  );
+}
+
 function getSmtpConfig() {
   return {
     host: process.env.SMTP_HOST,
@@ -45,7 +58,13 @@ function getSmtpConfig() {
 
 export function isMailConfigured(): boolean {
   const { host, user, pass, from } = getSmtpConfig();
-  return Boolean(host && user && pass && from);
+  if (!host || !user || !pass || !from) {
+    return false;
+  }
+  if (looksLikePlaceholderSecret(pass) || looksLikePlaceholderSecret(user)) {
+    return false;
+  }
+  return true;
 }
 
 function getTransporter() {
@@ -80,12 +99,22 @@ export async function sendMail({ to, subject, html }: SendMailInput) {
       subject,
       html,
     });
-    return { sent: false as const };
+    return { sent: false as const, reason: "unconfigured" as const };
   }
 
-  const transporter = getTransporter();
-  await transporter.sendMail({ from, to, subject, html });
-  return { sent: true as const };
+  try {
+    const transporter = getTransporter();
+    await transporter.sendMail({ from, to, subject, html });
+    return { sent: true as const };
+  } catch (error) {
+    console.error("[mail] Failed to send email. Logging payload instead.", {
+      to,
+      subject,
+      html,
+      error,
+    });
+    return { sent: false as const, reason: "send_failed" as const };
+  }
 }
 
 export async function sendAdminInviteEmail(input: {
@@ -115,7 +144,7 @@ export async function sendOtpEmail(
 ) {
   const copy = {
     signin: { action: "sign in", subject: "sign-in" },
-    signup: { action: "create your admin account", subject: "sign-up" },
+    signup: { action: "create your account", subject: "sign-up" },
     reset: { action: "reset your password", subject: "password reset" },
   }[reason];
 

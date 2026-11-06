@@ -6,6 +6,7 @@ import {
   GemstoneList,
   type GemstoneListItem,
 } from "@/app/admin/_components/GemstoneList";
+import { ExportCsvButton } from "@/app/admin/_components/ExportCsvButton";
 import { GemstoneFilters } from "@/app/_components/GemstoneFilters";
 import { getAdminSession } from "@/lib/auth";
 import {
@@ -53,12 +54,18 @@ async function GemstonesPage({
             {type || color || sort !== "featured" ? " matching filters" : ""}.
           </p>
         </div>
-        <Link
-          href="/admin/gemstones/new"
-          className="rounded-lg bg-jewel px-5 py-2.5 text-sm font-medium text-white"
-        >
-          New listing
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <ExportCsvButton
+            href="/api/admin/export/gemstones"
+            label="Export CSV"
+          />
+          <Link
+            href="/admin/gemstones/new"
+            className="rounded-lg bg-jewel px-5 py-2.5 text-sm font-medium text-white"
+          >
+            New listing
+          </Link>
+        </div>
       </div>
 
       <GemstoneFilters

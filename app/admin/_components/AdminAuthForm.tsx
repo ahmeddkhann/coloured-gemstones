@@ -8,12 +8,15 @@ import { PasswordField } from "@/app/_components/PasswordField";
 
 type Mode = "login" | "signup";
 
-export function AuthForm({
+const fieldClass =
+  "mt-1 w-full rounded-lg border border-[var(--admin-field-border)] bg-white px-4 py-3 text-sm text-black outline-none focus:border-black";
+
+export function AdminAuthForm({
   mode,
-  showSignupLink,
+  showSignupLink = false,
 }: {
   mode: Mode;
-  showSignupLink: boolean;
+  showSignupLink?: boolean;
 }) {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -41,7 +44,9 @@ export function AuthForm({
       if (!payload.ok) {
         setError(
           payload.error ??
-            (mode === "signup" ? "Could not create the admin." : "Could not sign in."),
+            (mode === "signup"
+              ? "Could not create the admin."
+              : "Could not sign in."),
         );
         return;
       }
@@ -52,24 +57,23 @@ export function AuthForm({
     }
   }
 
-  const fieldClass =
-    "mt-1 w-full rounded-xl border border-gold/30 bg-background px-4 py-3 text-sm outline-none focus:border-gold";
-
   return (
-    <div className="mx-auto w-full max-w-md rounded-3xl border border-gold/25 bg-card p-8 shadow-sm">
-      <p className="text-xs uppercase tracking-[0.28em] text-gold">Atelier desk</p>
-      <h1 className="mt-3 font-serif text-3xl text-jewel">
-        {mode === "signup" ? "Sign up" : "Sign in"}
+    <div className="w-full max-w-md rounded-xl border border-[var(--admin-border)] bg-white p-8 shadow-sm">
+      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--admin-muted)]">
+        Admin access
+      </p>
+      <h1 className="mt-2 text-2xl font-semibold tracking-tight text-black">
+        {mode === "signup" ? "Add admin" : "Admin sign in"}
       </h1>
-      <p className="mt-2 text-sm text-ink-soft">
+      <p className="mt-2 text-sm text-[var(--admin-muted)]">
         {mode === "signup"
-          ? "We will email a verification code after your account is created."
-          : "We will email a verification code after your password is accepted."}
+          ? "This is for staff accounts only. Customers should use the store account pages."
+          : "Staff login only. Customers should sign in from the storefront account icon."}
       </p>
 
       <form className="mt-8 space-y-4" onSubmit={submitCredentials}>
         {mode === "signup" ? (
-          <label className="block text-sm">
+          <label className="block text-sm text-black">
             Name
             <input
               className={fieldClass}
@@ -79,7 +83,7 @@ export function AuthForm({
             />
           </label>
         ) : null}
-        <label className="block text-sm">
+        <label className="block text-sm text-black">
           Email
           <input
             type="email"
@@ -100,7 +104,10 @@ export function AuthForm({
         {error ? <p className="text-sm text-red-700">{error}</p> : null}
         {mode === "login" ? (
           <p className="text-right">
-            <Link href="/admin/forgot-password" className="text-sm text-jewel underline">
+            <Link
+              href="/admin/forgot-password"
+              className="text-sm text-black underline"
+            >
               Forgot password
             </Link>
           </p>
@@ -108,24 +115,24 @@ export function AuthForm({
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-full bg-jewel py-3 text-sm text-[#f7f1e8] disabled:opacity-60"
+          className="w-full rounded-lg bg-black py-3 text-sm font-medium text-white disabled:opacity-60"
         >
           {pending ? "Sending code…" : "Send verification code"}
         </button>
       </form>
 
       {mode === "login" && showSignupLink ? (
-        <p className="mt-6 text-center text-sm text-ink-soft">
-          Need an account?{" "}
-          <Link href="/admin/signup" className="text-jewel underline">
+        <p className="mt-6 text-center text-sm text-[var(--admin-muted)]">
+          Need an admin account?{" "}
+          <Link href="/admin/signup" className="text-black underline">
             Sign up
           </Link>
         </p>
       ) : null}
       {mode === "signup" ? (
-        <p className="mt-6 text-center text-sm text-ink-soft">
-          Already created?{" "}
-          <Link href="/admin/login" className="text-jewel underline">
+        <p className="mt-6 text-center text-sm text-[var(--admin-muted)]">
+          Already an admin?{" "}
+          <Link href="/admin/login" className="text-black underline">
             Sign in
           </Link>
         </p>
